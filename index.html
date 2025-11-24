@@ -1,1245 +1,616 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Каталог изделий крана КС-8165</title>
+  <meta charset="utf-8" />
+  <title>Каталог деталей крана КС-8165 — демо-версия</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
 
+  <style>
     body {
-      margin: 0;
-      background: #f4f5f7;
-      color: #222;
+      background-color: #f5f5f5;
     }
 
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      background: #24292e;
+      background-color: #212529;
       color: #fff;
     }
 
     header h1 {
+      font-size: 1.4rem;
       margin: 0;
-      font-size: 18px;
-      font-weight: 500;
     }
 
-    header h1 span {
-      opacity: 0.7;
-      font-size: 14px;
-      font-weight: 400;
-      margin-left: 6px;
+    .tree-panel {
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+      background-color: #fff;
+      border-radius: 0.5rem;
+      border: 1px solid #dee2e6;
+      padding: 0.75rem 0.75rem 1rem;
     }
 
-    .auth-panel {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
+    .product-panel,
+    .cart-panel {
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+      background-color: #fff;
+      border-radius: 0.5rem;
+      border: 1px solid #dee2e6;
+      padding: 0.75rem 0.75rem 1rem;
     }
 
-    .auth-panel input {
-      padding: 3px 6px;
-      font-size: 13px;
-      border-radius: 4px;
-      border: 1px solid #555;
-      background: #111;
-      color: #eee;
-    }
-
-    .auth-panel button {
-      padding: 4px 10px;
-      font-size: 13px;
-      border-radius: 4px;
-      border: 1px solid #444;
-      background: #2ea44f;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .auth-panel button.secondary {
-      background: #444;
-    }
-
-    .auth-panel .error {
-      color: #ffaaaa;
-      margin-left: 8px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: #0366d6;
-      color: #fff;
-    }
-
-    .badge.hidden {
-      display: none;
-    }
-
-    main {
-      display: flex;
-      padding: 15px;
-      gap: 15px;
-    }
-
-    .column {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .column.wide {
-      flex: 1.3;
-    }
-
-    h2 {
-      margin: 0 0 5px;
-      font-size: 18px;
-    }
-
-    h3 {
-      margin: 0 0 5px;
-      font-size: 15px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 6px;
-      padding: 10px 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-
-    .muted {
-      font-size: 12px;
-      color: #666;
-    }
-
-    /* Дерево */
-    .tree {
+    ul.tree {
       list-style: none;
       padding-left: 0;
-      margin: 0;
+      margin-bottom: 0;
+      font-size: 0.9rem;
     }
 
-    .tree li {
-      padding: 2px 0;
-      font-size: 13px;
+    ul.tree ul {
+      list-style: none;
+      padding-left: 1.25rem;
+      margin-top: 0.25rem;
     }
 
-    .tree-row {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: default;
-    }
-
-    .tree-toggle {
-      width: 14px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: bold;
-      color: #555;
-      user-select: none;
-    }
-
-    .tree-toggle.disabled {
-      opacity: 0.4;
-      cursor: default;
+    .tree-item {
+      white-space: nowrap;
+      line-height: 1.4;
     }
 
     .tree-label {
       cursor: pointer;
     }
 
-    .tree-label .code {
-      font-family: "Consolas", monospace;
-      margin-right: 4px;
+    .tree-label:hover {
+      text-decoration: underline;
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 1px 5px;
-      border-radius: 999px;
-      font-size: 11px;
-      margin-left: 4px;
-    }
-
-    .pill.assembly {
-      background: #e8f0ff;
-      color: #174ea6;
-    }
-
-    .pill.part {
-      background: #e8f5e9;
-      color: #1b5e20;
-    }
-
-    .pill.standard {
-      background: #fff8e1;
-      color: #8d6e63;
-    }
-
-    .tree-children {
-      padding-left: 16px;
-      margin-top: 2px;
-    }
-
-    /* Формы */
-    .form-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
-      font-size: 13px;
-    }
-
-    .form-row label {
-      flex: 0 0 90px;
-    }
-
-    .form-row input,
-    .form-row select {
-      flex: 1;
-      padding: 3px 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 13px;
-    }
-
-    .form-row input[disabled],
-    .form-row select[disabled] {
-      background: #f1f1f1;
-      color: #777;
-    }
-
-    button {
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      padding: 4px 10px;
-      font-size: 13px;
+    .tree-toggle-btn {
+      width: 1.2rem;
+      text-align: center;
+      padding: 0;
+      border: none;
+      background: none;
       cursor: pointer;
-      background: #f3f4f6;
+      font-weight: 600;
     }
 
-    button.primary {
-      background: #2ea44f;
-      border-color: #2ea44f;
-      color: #fff;
-    }
-
-    button.danger {
-      background: #e5534b;
-      border-color: #e5534b;
-      color: #fff;
-    }
-
-    button:disabled {
-      opacity: 0.6;
+    .tree-toggle-btn:disabled {
       cursor: default;
+      color: #ccc;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
+    .badge-type {
+      font-size: 0.7rem;
+      vertical-align: middle;
+      margin-left: 0.4rem;
     }
 
-    th, td {
-      border-bottom: 1px solid #eee;
-      padding: 4px 6px;
-      text-align: left;
+    .card-section-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
     }
 
-    th {
-      background: #fafafa;
-      font-weight: 500;
+    .readonly-input {
+      background-color: #f8f9fa !important;
     }
 
-    .right {
-      text-align: right;
-    }
-
-    .center {
-      text-align: center;
-    }
-
-    .error-text {
-      color: #d32f2f;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    /* admin-only */
-    .admin-only {
-      display: none;
-    }
-
-    .admin-only.admin-visible {
-      display: block;
-    }
-
-    th.admin-only.admin-visible,
-    td.admin-only.admin-visible {
-      display: table-cell;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .media-box {
-      border: 1px dashed #ccc;
-      border-radius: 4px;
-      padding: 6px;
-      font-size: 12px;
-      text-align: center;
-      color: #666;
-      min-height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .media-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .media-title {
-      font-size: 12px;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .media-upload {
-      margin-top: 6px;
-      font-size: 12px;
-    }
-
-    @media (max-width: 1100px) {
-      main {
-        flex-direction: column;
-      }
+    .small-muted {
+      font-size: 0.8rem;
+      color: #6c757d;
     }
   </style>
 </head>
 <body>
-
-<header>
-  <h1>
-    Каталог изделий
-    <span>демо-версия</span>
-  </h1>
-
-  <div class="auth-panel">
-    <span id="adminBadge" class="badge hidden">Администратор вошёл</span>
-
-    <form id="loginForm" style="display:flex;align-items:center;gap:6px;margin:0;">
-      <input id="loginEmail" type="email" placeholder="Логин (email)" />
-      <input id="loginPassword" type="password" placeholder="Пароль" />
-      <button type="submit">Войти</button>
-    </form>
-
-    <button id="logoutBtn" class="secondary hidden">Выйти</button>
-    <span id="loginError" class="error"></span>
+<header class="py-2 mb-3">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div>
+      <h1>Каталог деталей крана КС-8165 <span class="text-secondary">— демо-версия</span></h1>
+    </div>
+    <div class="text-end small text-light">
+      Режим просмотра (редактирование доступно только локально)
+    </div>
   </div>
 </header>
 
-<main>
-  <!-- ЛЕВАЯ КОЛОНКА — ДЕРЕВО ИЗДЕЛИЙ + ДОБАВЛЕНИЕ -->
-  <div class="column" id="treeColumn">
-    <h2>Изделия</h2>
-    <div class="card">
-      <p class="muted">
-        Дерево: <b>сборки</b> → <b>детали</b> → <b>стандартизированные позиции</b>.
-      </p>
-      <ul id="productTree" class="tree"></ul>
+<div class="container-fluid">
+  <div class="row g-3">
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ: дерево изделий -->
+    <div class="col-12 col-lg-3">
+      <div class="tree-panel">
+        <div class="mb-2 small">
+          Дерево: <strong>сборки → детали → стандартизированные позиции.</strong>
+        </div>
+        <div id="treeError" class="text-danger small mb-2" style="display:none;"></div>
+        <ul id="productsTree" class="tree">
+          <li class="text-muted">Загрузка...</li>
+        </ul>
+      </div>
     </div>
 
-    <!-- ДОБАВЛЕНИЕ УЗЛА — ТОЛЬКО ДЛЯ АДМИНА -->
-    <section id="addNodeSection" class="card admin-only">
-      <h3>Добавить узел</h3>
+    <!-- СРЕДНЯЯ ПАНЕЛЬ: карточка изделия -->
+    <div class="col-12 col-lg-6">
+      <div class="product-panel">
+        <h5 class="mb-3">Карточка изделия</h5>
 
-      <p class="parent-info">
-        Родитель: <span id="addNodeParentLabel">(корень каталога)</span>
-      </p>
+        <div id="productHint" class="small-muted mb-2">
+          Выберите изделие в дереве слева.
+        </div>
 
-      <div class="form-row">
-        <label for="addCode">Код:</label>
-        <input id="addCode" type="text" autocomplete="off" />
-      </div>
+        <div class="mb-2">
+          <label class="form-label mb-1">Код:</label>
+          <input id="prodCode" class="form-control form-control-sm readonly-input" readonly />
+        </div>
 
-      <div class="form-row">
-        <label for="addName">Наименование:</label>
-        <input id="addName" type="text" autocomplete="off" />
-      </div>
+        <div class="mb-2">
+          <label class="form-label mb-1">Наименование:</label>
+          <input id="prodName" class="form-control form-control-sm readonly-input" readonly />
+        </div>
 
-      <div class="form-row">
-        <label for="addType">Тип:</label>
-        <select id="addType">
-          <option value="Assembly">Сборка</option>
-          <option value="Part">Деталь</option>
-          <option value="Standard">Стандартное</option>
-        </select>
-      </div>
+        <div class="mb-2">
+          <label class="form-label mb-1">Тип:</label>
+          <input id="prodType" class="form-control form-control-sm readonly-input" readonly />
+        </div>
 
-      <div class="form-row">
-        <label for="addQtyInParent">Кол-во в родителе:</label>
-        <input id="addQtyInParent" type="number" step="0.001" min="0" value="1" />
-      </div>
-
-      <div class="form-row">
-        <label for="addMass">Масса, кг:</label>
-        <input id="addMass" type="number" step="0.001" min="0" />
-      </div>
-
-      <div class="form-row">
-        <label for="addLen">Длина, мм:</label>
-        <input id="addLen" type="number" step="0.1" min="0" />
-      </div>
-
-      <div class="form-row">
-        <label for="addWidth">Ширина, мм:</label>
-        <input id="addWidth" type="number" step="0.1" min="0" />
-      </div>
-
-      <div class="form-row">
-        <label for="addHeight">Высота, мм:</label>
-        <input id="addHeight" type="number" step="0.1" min="0" />
-      </div>
-
-      <button id="addNodeBtn" class="primary">Добавить</button>
-      <div id="addNodeError" class="error-text"></div>
-    </section>
-  </div>
-
-  <!-- ЦЕНТР — КАРТОЧКА ИЗДЕЛИЯ -->
-  <div class="column wide" id="detailsColumn">
-    <h2>Карточка изделия</h2>
-    <section class="card">
-      <div class="form-row">
-        <label>Код:</label>
-        <input id="detailCode" type="text" />
-      </div>
-      <div class="form-row">
-        <label>Наименование:</label>
-        <input id="detailName" type="text" />
-      </div>
-      <div class="form-row">
-        <label>Тип:</label>
-        <select id="detailType">
-          <option value="Assembly">Сборка</option>
-          <option value="Part">Деталь</option>
-          <option value="Standard">Стандартное</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label>Масса, кг:</label>
-        <input id="detailMass" type="number" step="0.001" min="0" />
-      </div>
-      <div class="form-row">
-        <label>Длина, мм:</label>
-        <input id="detailLen" type="number" step="0.1" min="0" />
-      </div>
-      <div class="form-row">
-        <label>Ширина, мм:</label>
-        <input id="detailWidth" type="number" step="0.1" min="0" />
-      </div>
-      <div class="form-row">
-        <label>Высота, мм:</label>
-        <input id="detailHeight" type="number" step="0.1" min="0" />
-      </div>
-
-      <!-- ID только для администратора -->
-      <div class="form-row admin-only">
-        <label>ID:</label>
-        <input id="detailId" type="text" disabled />
-      </div>
-
-      <div style="margin-top:6px;display:flex;gap:8px;align-items:center;">
-        <button id="saveProductBtn" class="primary admin-only">Сохранить изменения</button>
-        <button id="addToCartBtn">Добавить в корзину</button>
-        <span id="detailMsg" class="muted"></span>
-      </div>
-
-      <!-- МЕДИА -->
-      <div class="media-grid" style="margin-top:10px;">
-        <div>
-          <div class="media-title">2D-изображение</div>
-          <div id="imageBox" class="media-box">
-            2D-изображение ещё не загружено
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="form-label mb-1">Масса, кг:</label>
+            <input id="prodMass" class="form-control form-control-sm readonly-input" readonly />
           </div>
-          <div class="media-upload admin-only">
-            <input id="imageUpload" type="file" accept="image/*" />
+          <div class="col-6 text-end">
+            <button id="addToCartBtn" class="btn btn-outline-primary btn-sm mt-4" disabled>
+              Добавить в корзину
+            </button>
           </div>
         </div>
-        <div>
-          <div class="media-title">3D-модель (.glb)</div>
-          <div id="modelBox" class="media-box">
-            3D-модель ещё не загружена (поддерживается формат <b>.glb</b>)
+
+        <div class="row g-2 mb-3">
+          <div class="col-4">
+            <label class="form-label mb-1">Длина, мм:</label>
+            <input id="prodLen" class="form-control form-control-sm readonly-input" readonly />
           </div>
-          <div class="media-upload admin-only">
-            <input id="modelUpload" type="file" accept=".glb" />
+          <div class="col-4">
+            <label class="form-label mb-1">Ширина, мм:</label>
+            <input id="prodWidth" class="form-control form-control-sm readonly-input" readonly />
+          </div>
+          <div class="col-4">
+            <label class="form-label mb-1">Высота, мм:</label>
+            <input id="prodHeight" class="form-control form-control-sm readonly-input" readonly />
           </div>
         </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="card-section-title">2D-изображение</div>
+            <div class="border rounded p-2 text-center small-muted">
+              2D-изображение ещё не загружено<br />
+              (доступно только в локальной админ-версии)
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card-section-title">3D-модель (.glb)</div>
+            <div class="border rounded p-2 text-center small-muted">
+              3D-модель ещё не загружена<br />
+              (доступно только в локальной админ-версии)
+            </div>
+          </div>
+        </div>
+
+        <h6 class="mt-3 mb-2">Состав сборки</h6>
+        <div class="small-muted mb-1">
+          Для деталей/стандарта состав пуст.
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+              <th style="width: 12%">Код</th>
+              <th>Наименование</th>
+              <th style="width: 10%">Кол-во</th>
+              <th style="width: 12%">Тип</th>
+              <th style="width: 12%">В корзину</th>
+            </tr>
+            </thead>
+            <tbody id="bomBody">
+            <tr><td colspan="5" class="text-muted small">Выберите сборку в дереве слева.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
-    </section>
+    </div>
 
-    <!-- СОСТАВ СБОРКИ -->
-    <section class="card">
-      <h3>Состав сборки</h3>
-      <table>
-        <thead>
-        <tr>
-          <th>Код</th>
-          <th>Наименование</th>
-          <th class="right">Кол-во</th>
-          <th>Тип</th>
-          <th class="center">В корзину</th>
-          <th class="center admin-only">Удалить</th>
-        </tr>
-        </thead>
-        <tbody id="bomBody">
-        <tr><td colspan="6" class="muted">Выберите сборку в дереве слева.</td></tr>
-        </tbody>
-      </table>
-      <div id="bomMsg" class="error-text"></div>
-    </section>
+    <!-- ПРАВАЯ ПАНЕЛЬ: корзина -->
+    <div class="col-12 col-lg-3">
+      <div class="cart-panel">
+        <h5 class="mb-3">Корзина</h5>
+        <div class="small-muted mb-1">
+          Состав заказа по позициям.
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+              <th style="width: 10%">ID</th>
+              <th style="width: 18%">Код</th>
+              <th>Наименование</th>
+              <th style="width: 15%">Кол-во</th>
+              <th style="width: 12%">Удалить</th>
+            </tr>
+            </thead>
+            <tbody id="cartBody">
+            <tr><td colspan="5" class="text-muted small">Корзина пуста.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <!-- ПРАВАЯ КОЛОНКА — КОРЗИНА + АДМИН-ПАНЕЛЬ -->
-  <div class="column" id="cartColumn">
-    <h2>Корзина</h2>
-    <section class="card">
-      <p class="muted">Состав заказа по позициям.</p>
-      <table>
-        <thead>
-        <tr>
-          <th class="admin-only">ID</th>
-          <th>Код</th>
-          <th>Наименование</th>
-          <th class="right">Кол-во</th>
-          <th class="center">Удалить</th>
-        </tr>
-        </thead>
-        <tbody id="cartBody">
-        <tr><td colspan="5" class="muted">Корзина пуста.</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- АДМИН-ПАНЕЛЬ: ХРАНИЛИЩЕ -->
-    <section id="adminStorageSection" class="card admin-only">
-      <h3>Админ-панель</h3>
-      <p class="muted">Контроль хранилища загруженных файлов.</p>
-
-      <table>
-        <tbody>
-          <tr>
-            <th>Файлов в хранилище</th>
-            <td id="storageFiles">—</td>
-          </tr>
-          <tr>
-            <th>Занято</th>
-            <td id="storageUsed">—</td>
-          </tr>
-          <tr>
-            <th>Доступно</th>
-            <td id="storageAvailable">—</td>
-          </tr>
-          <tr>
-            <th>Общий объём (лимит)</th>
-            <td id="storageTotal">—</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <button id="refreshStorageBtn">Обновить</button>
-      <div id="storageError" class="error-text"></div>
-    </section>
-  </div>
-</main>
+</div>
 
 <script>
-  // ===== НАСТРОЙКИ API =====
-  const API_BASE = 'https://catalog-api-hdqu.onrender.com/api';
-  // для локальной отладки можно поставить: const API_BASE = 'http://localhost:10000/api';
+  // === БАЗОВЫЕ НАСТРОЙКИ ===
+  const API_BASE = 'https://catalog-api-hdqu.onrender.com';
 
-  // ===== СОСТОЯНИЕ =====
-  let authToken = null;
-  let isAdmin = false;
-  let selectedProductId = null;
-  let selectedProductData = null;
+  let productsCache = new Map();   // id -> product
+  let currentProductId = null;
 
-  // ===== ЭЛЕМЕНТЫ =====
-  const loginForm   = document.getElementById('loginForm');
-  const loginEmail  = document.getElementById('loginEmail');
-  const loginPass   = document.getElementById('loginPassword');
-  const loginError  = document.getElementById('loginError');
-  const logoutBtn   = document.getElementById('logoutBtn');
-  const adminBadge  = document.getElementById('adminBadge');
+  // --- Вспомогательные функции работы с API ---
 
-  const addNodeParentLabel  = document.getElementById('addNodeParentLabel');
-  const addCodeInput        = document.getElementById('addCode');
-  const addNameInput        = document.getElementById('addName');
-  const addTypeSelect       = document.getElementById('addType');
-  const addQtyInput         = document.getElementById('addQtyInParent');
-  const addMassInput        = document.getElementById('addMass');
-  const addLenInput         = document.getElementById('addLen');
-  const addWidthInput       = document.getElementById('addWidth');
-  const addHeightInput      = document.getElementById('addHeight');
-  const addNodeBtn          = document.getElementById('addNodeBtn');
-  const addNodeError        = document.getElementById('addNodeError');
-
-  const detailCode   = document.getElementById('detailCode');
-  const detailName   = document.getElementById('detailName');
-  const detailType   = document.getElementById('detailType');
-  const detailMass   = document.getElementById('detailMass');
-  const detailLen    = document.getElementById('detailLen');
-  const detailWidth  = document.getElementById('detailWidth');
-  const detailHeight = document.getElementById('detailHeight');
-  const detailId     = document.getElementById('detailId');
-  const detailMsg    = document.getElementById('detailMsg');
-
-  const saveProductBtn = document.getElementById('saveProductBtn');
-  const addToCartBtn   = document.getElementById('addToCartBtn');
-
-  const imageBox       = document.getElementById('imageBox');
-  const modelBox       = document.getElementById('modelBox');
-  const imageUpload    = document.getElementById('imageUpload');
-  const modelUpload    = document.getElementById('modelUpload');
-
-  const productTree = document.getElementById('productTree');
-  const bomBody     = document.getElementById('bomBody');
-  const bomMsg      = document.getElementById('bomMsg');
-  const cartBody    = document.getElementById('cartBody');
-
-  const storageFilesSpan      = document.getElementById('storageFiles');
-  const storageUsedSpan       = document.getElementById('storageUsed');
-  const storageAvailSpan      = document.getElementById('storageAvailable');
-  const storageTotalSpan      = document.getElementById('storageTotal');
-  const storageError          = document.getElementById('storageError');
-  const refreshStorageBtn     = document.getElementById('refreshStorageBtn');
-
-  // ===== ВСПОМОГАТЕЛЬНЫЕ =====
-  function authHeaders(extra = {}) {
-    const h = { ...extra };
-    if (authToken) h['Authorization'] = 'Bearer ' + authToken;
-    return h;
-  }
-
-  function formatNumber(val) {
-    if (val === null || val === undefined || val === '') return '';
-    const n = Number(val);
-    if (Number.isNaN(n)) return '';
-    return n.toFixed(3).replace(/\.000$/, '');
-  }
-
-  function typeLabel(type) {
-    const t = (type || '').toLowerCase();
-    if (t === 'assembly') return 'Сборка';
-    if (t === 'part')     return 'Деталь';
-    if (t === 'standard') return 'Стандартное';
-    return type || '';
-  }
-
-  function formatBytes(bytes) {
-    if (bytes == null || isNaN(bytes)) return '—';
-    const units = ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ'];
-    let i = 0;
-    let value = Number(bytes);
-    while (value >= 1024 && i < units.length - 1) {
-      value /= 1024;
-      i++;
+  async function apiGet(path) {
+    const resp = await fetch(API_BASE + path);
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+      throw new Error('Ошибка загрузки ' + path + ': ' + resp.status + ' ' + text);
     }
-    return value.toFixed(1).replace(/\.0$/, '') + ' ' + units[i];
+    return resp.json();
   }
 
-  // ===== АВТОРИЗАЦИЯ =====
-  function updateAuthUI(admin) {
-    isAdmin = !!admin;
-
-    document.querySelectorAll('.admin-only').forEach(el => {
-      if (isAdmin) el.classList.add('admin-visible');
-      else el.classList.remove('admin-visible');
+  async function apiPost(path, body) {
+    const resp = await fetch(API_BASE + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {})
     });
-
-    if (isAdmin) {
-      loginForm.classList.add('hidden');
-      logoutBtn.classList.remove('hidden');
-      adminBadge.classList.remove('hidden');
-    } else {
-      loginForm.classList.remove('hidden');
-      logoutBtn.classList.add('hidden');
-      adminBadge.classList.add('hidden');
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+      throw new Error('Ошибка POST ' + path + ': ' + resp.status + ' ' + text);
     }
-
-    // поля карточки изделия редактируемы только у админа
-    [detailCode, detailName, detailType, detailMass, detailLen, detailWidth, detailHeight].forEach(el => {
-      if (!el) return;
-      el.disabled = !isAdmin;
-    });
-
-    if (!isAdmin) {
-      detailMsg.textContent = '';
-      bomMsg.textContent = '';
-      addNodeError.textContent = '';
-      // очистим статистику хранилища
-      if (storageFilesSpan) {
-        storageFilesSpan.textContent = storageUsedSpan.textContent =
-          storageAvailSpan.textContent = storageTotalSpan.textContent = '—';
-        storageError.textContent = '';
-      }
-    }
+    return resp.json();
   }
 
-  async function handleLogin(evt) {
-    evt.preventDefault();
-    loginError.textContent = '';
-
-    const username = loginEmail.value.trim();
-    const password = loginPass.value;
-
-    if (!username || !password) {
-      loginError.textContent = 'Введите логин и пароль.';
-      return;
+  async function apiDelete(path) {
+    const resp = await fetch(API_BASE + path, { method: 'DELETE' });
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+      throw new Error('Ошибка DELETE ' + path + ': ' + resp.status + ' ' + text);
     }
+    return resp.json();
+  }
+
+  // --- Дерево изделий ---
+
+  async function loadProductsTree() {
+    const treeEl = document.getElementById('productsTree');
+    const errorEl = document.getElementById('treeError');
+
+    treeEl.innerHTML = '<li class="text-muted">Загрузка...</li>';
+    errorEl.style.display = 'none';
 
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      const products = await apiGet('/api/products/root');
+      productsCache.clear();
+      products.forEach(p => productsCache.set(p.id, p));
 
-      if (!res.ok) {
-        loginError.textContent = 'Неверный логин или пароль.';
-        updateAuthUI(false);
-        return;
+      const assemblies = products.filter(p => p.type === 'Assembly');
+      const others = products.filter(p => p.type !== 'Assembly');
+
+      treeEl.innerHTML = '';
+
+      // сборки
+      assemblies.forEach(p => treeEl.appendChild(createTreeItem(p)));
+
+      // отдельный раздел для деталей/стандарта без сборки
+      if (others.length) {
+        const hr = document.createElement('li');
+        hr.className = 'mt-2 mb-1 small text-muted';
+        hr.textContent = 'Отдельные детали и стандартизированные позиции:';
+        treeEl.appendChild(hr);
+        others.forEach(p => treeEl.appendChild(createTreeItem(p)));
       }
 
-      const data = await res.json();
-      authToken = data.token;
-      updateAuthUI(true);
-      loadStorageStats();
     } catch (e) {
       console.error(e);
-      loginError.textContent = 'Ошибка связи с сервером.';
-      updateAuthUI(false);
+      treeEl.innerHTML = '';
+      errorEl.textContent = 'Ошибка загрузки дерева: ' + e.message;
+      errorEl.style.display = 'block';
     }
   }
 
-  function handleLogout() {
-    authToken = null;
-    updateAuthUI(false);
-  }
-
-  // ===== ДЕРЕВО ИЗДЕЛИЙ =====
-  async function loadRootProducts() {
-    productTree.innerHTML = '<li class="muted">Загрузка...</li>';
-    try {
-      const res = await fetch(`${API_BASE}/products/root`);
-      const items = await res.json();
-
-      productTree.innerHTML = '';
-      items.forEach(p => {
-        productTree.appendChild(createTreeItem(p));
-      });
-    } catch (e) {
-      console.error(e);
-      productTree.innerHTML = '<li class="error-text">Ошибка загрузки дерева.</li>';
-    }
-  }
-
-  function createTreeItem(product, quantity = null, bomItemId = null) {
+  function createTreeItem(product) {
     const li = document.createElement('li');
-    li.dataset.productId = product.id || product.product_id;
-    if (bomItemId) li.dataset.bomItemId = bomItemId;
+    li.className = 'tree-item';
 
-    const row = document.createElement('div');
-    row.className = 'tree-row';
+    const hasChildren = product.type === 'Assembly';
 
-    const toggle = document.createElement('span');
-    toggle.className = 'tree-toggle';
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'tree-toggle-btn me-1';
+    toggleBtn.textContent = hasChildren ? '+' : '•';
+    toggleBtn.disabled = !hasChildren;
 
-    const isAssembly = (product.type || '').toLowerCase() === 'assembly';
-    if (isAssembly) {
-      toggle.textContent = '+';
-      toggle.addEventListener('click', () => toggleChildren(li, product));
+    const labelBtn = document.createElement('span');
+    labelBtn.className = 'tree-label';
+    labelBtn.textContent = `${product.code} — ${product.name}`;
+    labelBtn.addEventListener('click', () => selectProduct(product.id));
+
+    li.appendChild(toggleBtn);
+    li.appendChild(labelBtn);
+
+    const badge = document.createElement('span');
+    badge.className = 'badge badge-type';
+    if (product.type === 'Assembly') {
+      badge.classList.add('bg-primary');
+      badge.textContent = 'Сборка';
+    } else if (product.type === 'Part') {
+      badge.classList.add('bg-success');
+      badge.textContent = 'Деталь';
     } else {
-      toggle.textContent = '';
-      toggle.classList.add('disabled');
+      badge.classList.add('bg-warning', 'text-dark');
+      badge.textContent = 'Стандартное';
     }
+    li.appendChild(badge);
 
-    const label = document.createElement('span');
-    label.className = 'tree-label';
-    label.addEventListener('click', () => onTreeSelect(li, product));
+    const childrenUl = document.createElement('ul');
+    childrenUl.className = 'tree-children';
+    childrenUl.style.display = 'none';
+    li.appendChild(childrenUl);
 
-    const codeSpan = document.createElement('span');
-    codeSpan.className = 'code';
-    codeSpan.textContent = product.code;
-
-    const nameSpan = document.createElement('span');
-    nameSpan.textContent = ' — ' + product.name;
-
-    const typeSpan = document.createElement('span');
-    typeSpan.className = 'pill ' + (
-      product.type === 'Assembly' ? 'assembly' :
-      product.type === 'Part'     ? 'part'     :
-                                    'standard'
-    );
-    typeSpan.textContent = typeLabel(product.type);
-
-    label.appendChild(codeSpan);
-    label.appendChild(nameSpan);
-    label.appendChild(typeSpan);
-
-    if (quantity != null) {
-      const qtySpan = document.createElement('span');
-      qtySpan.className = 'muted';
-      qtySpan.textContent = `  × ${formatNumber(quantity)}`;
-      label.appendChild(qtySpan);
+    if (hasChildren) {
+      let expanded = false;
+      toggleBtn.addEventListener('click', async () => {
+        if (!expanded) {
+          await loadTreeChildren(product.id, childrenUl);
+          expanded = true;
+          childrenUl.style.display = 'block';
+          toggleBtn.textContent = '–';
+        } else {
+          const visible = childrenUl.style.display !== 'none';
+          childrenUl.style.display = visible ? 'none' : 'block';
+          toggleBtn.textContent = visible ? '+' : '–';
+        }
+      });
     }
-
-    row.appendChild(toggle);
-    row.appendChild(label);
-    li.appendChild(row);
 
     return li;
   }
 
-  async function toggleChildren(li, product) {
-    const existing = li.querySelector('.tree-children');
-    const toggle = li.querySelector('.tree-toggle');
-
-    if (existing) {
-      const visible = existing.style.display !== 'none';
-      existing.style.display = visible ? 'none' : 'block';
-      toggle.textContent = visible ? '+' : '−';
-      return;
-    }
-
-    toggle.textContent = '…';
+  async function loadTreeChildren(parentId, containerUl) {
+    containerUl.innerHTML = '<li class="text-muted">Загрузка...</li>';
     try {
-      const res = await fetch(`${API_BASE}/products/${product.id}/children`);
-      const children = await res.json();
-
-      const ul = document.createElement('ul');
-      ul.className = 'tree-children';
-
+      const children = await apiGet(`/api/products/${parentId}/children`);
+      containerUl.innerHTML = '';
+      if (!children.length) {
+        containerUl.innerHTML = '<li class="text-muted small">Состав отсутствует.</li>';
+        return;
+      }
       children.forEach(ch => {
-        ul.appendChild(createTreeItem(ch, ch.quantity, ch.bom_item_id));
+        const prod = {
+          id: ch.product_id,
+          code: ch.code,
+          name: ch.name,
+          type: ch.type,
+          mass_kg: ch.mass_kg,
+          length_mm: ch.length_mm,
+          width_mm: ch.width_mm,
+          height_mm: ch.height_mm
+        };
+        productsCache.set(prod.id, prod);
+        containerUl.appendChild(createTreeItem(prod));
       });
-
-      li.appendChild(ul);
-      toggle.textContent = '−';
     } catch (e) {
       console.error(e);
-      toggle.textContent = '+';
-      alert('Ошибка загрузки состава сборки.');
+      containerUl.innerHTML =
+        '<li class="text-danger small">Ошибка загрузки состава: ' +
+        e.message +
+        '</li>';
     }
   }
 
-  function clearTreeSelection() {
-    document.querySelectorAll('.tree-label').forEach(lbl => {
-      lbl.classList.remove('selected');
-    });
-  }
+  // --- Карточка изделия и состав сборки ---
 
-  function onTreeSelect(li, product) {
-    clearTreeSelection();
-    const label = li.querySelector('.tree-label');
-    if (label) label.classList.add('selected');
-
-    selectedProductId = product.id || product.product_id;
-    addNodeParentLabel.textContent = product.code + ' — ' + product.name;
-
-    loadProductDetails(selectedProductId);
-  }
-
-  // ===== КАРТОЧКА ИЗДЕЛИЯ =====
-  async function loadProductDetails(id) {
-    detailMsg.textContent = '';
-    bomMsg.textContent = '';
-    bomBody.innerHTML = '<tr><td colspan="6" class="muted">Загрузка...</td></tr>';
+  async function selectProduct(productId) {
+    currentProductId = productId;
+    document.getElementById('addToCartBtn').disabled = false;
 
     try {
-      const res = await fetch(`${API_BASE}/products/${id}`);
-      const product = await res.json();
-      selectedProductData = product;
+      const prod = await apiGet(`/api/products/${productId}`);
 
-      detailCode.value   = product.code || '';
-      detailName.value   = product.name || '';
-      detailType.value   = product.type || 'Assembly';
-      detailMass.value   = product.mass_kg  != null ? product.mass_kg  : '';
-      detailLen.value    = product.length_mm != null ? product.length_mm : '';
-      detailWidth.value  = product.width_mm  != null ? product.width_mm  : '';
-      detailHeight.value = product.height_mm != null ? product.height_mm : '';
-      if (detailId) detailId.value = product.id;
+      document.getElementById('productHint').textContent =
+        `Код ${prod.code} — ${prod.name}`;
 
-      // 2D
-      if (product.image_url) {
-        imageBox.textContent = '';
-        const img = document.createElement('img');
-        img.src = product.image_url;
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '140px';
-        imageBox.appendChild(img);
+      document.getElementById('prodCode').value = prod.code || '';
+      document.getElementById('prodName').value = prod.name || '';
+      document.getElementById('prodType').value =
+        prod.type === 'Assembly'
+          ? 'Сборочная единица'
+          : prod.type === 'Part'
+          ? 'Деталь'
+          : 'Стандартное изделие';
+
+      document.getElementById('prodMass').value =
+        prod.mass_kg != null ? String(prod.mass_kg) : '';
+      document.getElementById('prodLen').value =
+        prod.length_mm != null ? String(prod.length_mm) : '';
+      document.getElementById('prodWidth').value =
+        prod.width_mm != null ? String(prod.width_mm) : '';
+      document.getElementById('prodHeight').value =
+        prod.height_mm != null ? String(prod.height_mm) : '';
+
+      if (prod.type === 'Assembly') {
+        await loadBom(productId);
       } else {
-        imageBox.textContent = '2D-изображение ещё не загружено';
+        const tbody = document.getElementById('bomBody');
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="text-muted small">Состав есть только у сборок.</td></tr>';
       }
-
-      // 3D
-      if (product.model_url) {
-        modelBox.textContent = product.model_url;
-      } else {
-        modelBox.textContent = '3D-модель ещё не загружена (поддерживается формат .glb)';
-      }
-
-      const resChildren = await fetch(`${API_BASE}/products/${id}/children`);
-      const children = await resChildren.json();
-      renderBom(children);
     } catch (e) {
       console.error(e);
-      detailMsg.textContent = 'Ошибка загрузки изделия.';
-      bomBody.innerHTML = '<tr><td colspan="6" class="muted">Нет данных.</td></tr>';
+      alert('Ошибка загрузки изделия: ' + e.message);
     }
   }
 
-  function renderBom(children) {
-    bomBody.innerHTML = '';
-
-    if (!children.length) {
-      bomBody.innerHTML = '<tr><td colspan="6" class="muted">Состав пуст.</td></tr>';
-      return;
-    }
-
-    children.forEach(ch => {
-      const tr = document.createElement('tr');
-
-      const tdCode = document.createElement('td');
-      tdCode.textContent = ch.code;
-      tr.appendChild(tdCode);
-
-      const tdName = document.createElement('td');
-      tdName.textContent = ch.name;
-      tr.appendChild(tdName);
-
-      const tdQty = document.createElement('td');
-      tdQty.className = 'right';
-      tdQty.textContent = formatNumber(ch.quantity);
-      tr.appendChild(tdQty);
-
-      const tdType = document.createElement('td');
-      tdType.textContent = typeLabel(ch.type);
-      tr.appendChild(tdType);
-
-      const tdCart = document.createElement('td');
-      tdCart.className = 'center';
-      const btnCart = document.createElement('button');
-      btnCart.textContent = 'В корзину';
-      btnCart.addEventListener('click', () => addToCart(ch.product_id || ch.id, ch.quantity || 1));
-      tdCart.appendChild(btnCart);
-      tr.appendChild(tdCart);
-
-      const tdDel = document.createElement('td');
-      tdDel.className = 'center admin-only';
-      if (isAdmin) tdDel.classList.add('admin-visible');
-
-      const btnDel = document.createElement('button');
-      btnDel.textContent = 'X';
-      btnDel.className = 'danger';
-      btnDel.addEventListener('click', () => deleteBomItem(ch.bom_item_id));
-      tdDel.appendChild(btnDel);
-
-      tr.appendChild(tdDel);
-      bomBody.appendChild(tr);
-    });
-  }
-
-  async function saveProduct() {
-    if (!isAdmin || !selectedProductId) return;
-
-    detailMsg.textContent = '';
-    const payload = {
-      code: detailCode.value.trim(),
-      name: detailName.value.trim(),
-      type: detailType.value,
-      mass_kg:   detailMass.value   ? Number(detailMass.value)   : null,
-      length_mm: detailLen.value    ? Number(detailLen.value)    : null,
-      width_mm:  detailWidth.value  ? Number(detailWidth.value)  : null,
-      height_mm: detailHeight.value ? Number(detailHeight.value) : null,
-    };
+  async function loadBom(parentId) {
+    const tbody = document.getElementById('bomBody');
+    tbody.innerHTML =
+      '<tr><td colspan="5" class="text-muted small">Загрузка состава...</td></tr>';
 
     try {
-      const res = await fetch(`${API_BASE}/products/${selectedProductId}`, {
-        method: 'PUT',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        detailMsg.textContent = 'Ошибка сохранения.';
+      const children = await apiGet(`/api/products/${parentId}/children`);
+      if (!children.length) {
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="text-muted small">Состав пуст.</td></tr>';
         return;
       }
 
-      detailMsg.textContent = 'Изменения сохранены.';
-      loadRootProducts(); // обновить дерево
-    } catch (e) {
-      console.error(e);
-      detailMsg.textContent = 'Ошибка соединения.';
-    }
-  }
-
-  // ===== ДОБАВЛЕНИЕ УЗЛА =====
-  async function addNode() {
-    if (!isAdmin) return;
-    addNodeError.textContent = '';
-
-    const code = addCodeInput.value.trim();
-    const name = addNameInput.value.trim();
-
-    if (!code || !name) {
-      addNodeError.textContent = 'Укажите код и наименование.';
-      return;
-    }
-
-    const payload = {
-      code,
-      name,
-      type: addTypeSelect.value,
-      mass_kg:   addMassInput.value   ? Number(addMassInput.value)   : null,
-      length_mm: addLenInput.value    ? Number(addLenInput.value)    : null,
-      width_mm:  addWidthInput.value  ? Number(addWidthInput.value)  : null,
-      height_mm: addHeightInput.value ? Number(addHeightInput.value) : null,
-      parentId: selectedProductId || null,
-      quantityInParent: addQtyInput.value ? Number(addQtyInput.value) : 1
-    };
-
-    try {
-      const res = await fetch(`${API_BASE}/products`, {
-        method: 'POST',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        addNodeError.textContent = 'Ошибка добавления узла.';
-        return;
-      }
-
-      addCodeInput.value = '';
-      addNameInput.value = '';
-      addMassInput.value = '';
-      addLenInput.value = '';
-      addWidthInput.value = '';
-      addHeightInput.value = '';
-
-      loadRootProducts();
-      if (selectedProductId) loadProductDetails(selectedProductId);
-    } catch (e) {
-      console.error(e);
-      addNodeError.textContent = 'Ошибка соединения.';
-    }
-  }
-
-  // ===== КОРЗИНА =====
-  async function loadCart() {
-    cartBody.innerHTML = '<tr><td colspan="5" class="muted">Загрузка...</td></tr>';
-    try {
-      const res = await fetch(`${API_BASE}/cart`);
-      const items = await res.json();
-
-      cartBody.innerHTML = '';
-      if (!items.length) {
-        cartBody.innerHTML = '<tr><td colspan="5" class="muted">Корзина пуста.</td></tr>';
-        return;
-      }
-
-      items.forEach(item => {
+      tbody.innerHTML = '';
+      for (const ch of children) {
         const tr = document.createElement('tr');
 
-        const tdId = document.createElement('td');
-        tdId.className = 'admin-only' + (isAdmin ? ' admin-visible' : '');
-        tdId.textContent = item.id;
-        tr.appendChild(tdId);
-
         const tdCode = document.createElement('td');
-        tdCode.textContent = item.code;
+        tdCode.textContent = ch.code;
         tr.appendChild(tdCode);
 
         const tdName = document.createElement('td');
-        tdName.textContent = item.name;
+        tdName.textContent = ch.name;
         tr.appendChild(tdName);
 
         const tdQty = document.createElement('td');
-        tdQty.className = 'right';
-        tdQty.textContent = formatNumber(item.quantity);
+        tdQty.textContent = ch.quantity != null ? String(ch.quantity) : '1';
+        tr.appendChild(tdQty);
+
+        const tdType = document.createElement('td');
+        tdType.textContent =
+          ch.type === 'Assembly'
+            ? 'Сборка'
+            : ch.type === 'Part'
+            ? 'Деталь'
+            : 'Стандарт';
+        tr.appendChild(tdType);
+
+        const tdCart = document.createElement('td');
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline-primary btn-sm';
+        btn.textContent = 'В корзину';
+        btn.addEventListener('click', () => addToCart(ch.product_id));
+        tdCart.appendChild(btn);
+        tr.appendChild(tdCart);
+
+        tbody.appendChild(tr);
+      }
+    } catch (e) {
+      console.error(e);
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="text-danger small">Ошибка загрузки состава: ' +
+        e.message +
+        '</td></tr>';
+    }
+  }
+
+  // --- Корзина ---
+
+  async function loadCart() {
+    const tbody = document.getElementById('cartBody');
+    tbody.innerHTML =
+      '<tr><td colspan="5" class="text-muted small">Загрузка...</td></tr>';
+    try {
+      const items = await apiGet('/api/cart');
+      if (!items.length) {
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="text-muted small">Корзина пуста.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      for (const it of items) {
+        const tr = document.createElement('tr');
+
+        const tdId = document.createElement('td');
+        tdId.textContent = it.id;
+        tr.appendChild(tdId);
+
+        const tdCode = document.createElement('td');
+        tdCode.textContent = it.code;
+        tr.appendChild(tdCode);
+
+        const tdName = document.createElement('td');
+        tdName.textContent = it.name;
+        tr.appendChild(tdName);
+
+        const tdQty = document.createElement('td');
+        tdQty.textContent =
+          it.quantity != null ? String(it.quantity) : '1';
         tr.appendChild(tdQty);
 
         const tdDel = document.createElement('td');
-        tdDel.className = 'center';
-        const btnDel = document.createElement('button');
-        btnDel.textContent = 'X';
-        btnDel.className = 'danger';
-        btnDel.addEventListener('click', () => deleteCartItem(item.id));
-        tdDel.appendChild(btnDel);
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline-danger btn-sm';
+        btn.textContent = '×';
+        btn.addEventListener('click', () => removeFromCart(it.id));
+        tdDel.appendChild(btn);
         tr.appendChild(tdDel);
 
-        cartBody.appendChild(tr);
-      });
-    } catch (e) {
-      console.error(e);
-      cartBody.innerHTML = '<tr><td colspan="5" class="muted">Ошибка загрузки корзины.</td></tr>';
-    }
-  }
-
-  async function addToCart(productId, quantity = 1) {
-    if (!productId) return;
-    try {
-      await fetch(`${API_BASE}/cart/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity })
-      });
-      loadCart();
-    } catch (e) {
-      console.error(e);
-      alert('Ошибка добавления в корзину.');
-    }
-  }
-
-  async function deleteCartItem(id) {
-    if (!id) return;
-    try {
-      await fetch(`${API_BASE}/cart/${id}`, { method: 'DELETE' });
-      loadCart();
-    } catch (e) {
-      console.error(e);
-      alert('Ошибка удаления из корзины.');
-    }
-  }
-
-  // ===== BOM УДАЛЕНИЕ =====
-  async function deleteBomItem(bomItemId) {
-    if (!isAdmin || !bomItemId) return;
-    try {
-      const res = await fetch(`${API_BASE}/bom/${bomItemId}`, {
-        method: 'DELETE',
-        headers: authHeaders()
-      });
-      if (!res.ok) {
-        bomMsg.textContent = 'Ошибка удаления позиции.';
-        return;
+        tbody.appendChild(tr);
       }
-      if (selectedProductId) loadProductDetails(selectedProductId);
     } catch (e) {
       console.error(e);
-      bomMsg.textContent = 'Ошибка соединения.';
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="text-danger small">Ошибка загрузки корзины: ' +
+        e.message +
+        '</td></tr>';
     }
   }
 
-  // ===== ЗАГРУЗКА МЕДИА =====
-  async function uploadMedia(kind, fileInput) {
-    if (!isAdmin || !selectedProductId) return;
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('kind', kind);
-
+  async function addToCart(productId) {
     try {
-      const res = await fetch(`${API_BASE}/products/${selectedProductId}/media`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: formData
-      });
-      if (!res.ok) {
-        alert('Ошибка загрузки файла.');
-        return;
-      }
-      loadProductDetails(selectedProductId);
+      await apiPost('/api/cart/add', { productId, quantity: 1 });
+      await loadCart();
     } catch (e) {
       console.error(e);
-      alert('Ошибка соединения при загрузке.');
-    } finally {
-      fileInput.value = '';
+      alert('Ошибка добавления в корзину: ' + e.message);
     }
   }
 
-  // ===== АДМИН: СТАТИСТИКА ХРАНИЛИЩА =====
-  async function loadStorageStats() {
-    if (!isAdmin) return;
-
-    storageError.textContent = '';
-    storageFilesSpan.textContent = '…';
-    storageUsedSpan.textContent  = '…';
-    storageAvailSpan.textContent = '…';
-    storageTotalSpan.textContent = '…';
-
+  async function removeFromCart(cartItemId) {
+    if (!confirm('Удалить позицию из корзины?')) return;
     try {
-      const res = await fetch(`${API_BASE}/admin/storage`, {
-        headers: authHeaders()
-      });
-
-      if (!res.ok) {
-        storageError.textContent = 'Ошибка загрузки статистики хранилища.';
-        return;
-      }
-
-      const data = await res.json();
-      storageFilesSpan.textContent = data.totalFiles;
-      storageUsedSpan.textContent  = formatBytes(data.totalBytesUsed);
-      storageTotalSpan.textContent = formatBytes(data.totalBytesLimit);
-      storageAvailSpan.textContent = formatBytes(data.totalBytesAvailable);
+      await apiDelete(`/api/cart/${cartItemId}`);
+      await loadCart();
     } catch (e) {
       console.error(e);
-      storageError.textContent = 'Ошибка соединения с сервером.';
+      alert('Ошибка удаления из корзины: ' + e.message);
     }
   }
 
-  // ===== ИНИЦИАЛИЗАЦИЯ =====
+  // --- Инициализация ---
+
   document.addEventListener('DOMContentLoaded', () => {
-    loginForm.addEventListener('submit', handleLogin);
-    logoutBtn.addEventListener('click', handleLogout);
-
-    addNodeBtn.addEventListener('click', addNode);
-    saveProductBtn.addEventListener('click', saveProduct);
-    addToCartBtn.addEventListener('click', () => {
-      if (selectedProductId) addToCart(selectedProductId, 1);
-    });
-
-    imageUpload.addEventListener('change', () => uploadMedia('image', imageUpload));
-    modelUpload.addEventListener('change', () => uploadMedia('model', modelUpload));
-
-    if (refreshStorageBtn) {
-      refreshStorageBtn.addEventListener('click', () => {
-        if (isAdmin) loadStorageStats();
-      });
-    }
-
-    updateAuthUI(false);
-    loadRootProducts();
+    loadProductsTree();
     loadCart();
+
+    document.getElementById('addToCartBtn').addEventListener('click', () => {
+      if (currentProductId) {
+        addToCart(currentProductId);
+      }
+    });
   });
 </script>
 
