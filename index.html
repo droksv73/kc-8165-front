@@ -14,103 +14,108 @@
   <style>
     body {
       background-color: #f5f5f5;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
 
     header {
-      background-color: #212529;
+      background: #343a40;
       color: #fff;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1rem;
     }
 
     header h1 {
-      font-size: 1.4rem;
+      font-size: 1.25rem;
       margin: 0;
     }
 
-    .tree-panel {
-      height: calc(100vh - 120px);
-      overflow-y: auto;
-      background-color: #fff;
-      border-radius: 0.5rem;
-      border: 1px solid #dee2e6;
-      padding: 0.75rem 0.75rem 1rem;
-    }
-
+    .tree-panel,
     .product-panel,
     .cart-panel {
-      height: calc(100vh - 120px);
-      overflow-y: auto;
-      background-color: #fff;
-      border-radius: 0.5rem;
-      border: 1px solid #dee2e6;
-      padding: 0.75rem 0.75rem 1rem;
+      background: #fff;
+      border-radius: 0.25rem;
+      padding: 0.75rem;
+      box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.08);
+      min-height: 200px;
     }
 
-    ul.tree {
+    .tree {
       list-style: none;
       padding-left: 0;
       margin-bottom: 0;
-      font-size: 0.9rem;
     }
 
-    ul.tree ul {
-      list-style: none;
-      padding-left: 1.25rem;
-      margin-top: 0.25rem;
+    .tree li {
+      margin-bottom: 0.15rem;
     }
 
     .tree-item {
-      white-space: nowrap;
-      line-height: 1.4;
-    }
-
-    .tree-label {
+      display: flex;
+      align-items: center;
       cursor: pointer;
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.2rem;
     }
 
-    .tree-label:hover {
-      text-decoration: underline;
+    .tree-item:hover {
+      background-color: #f1f5ff;
     }
 
-    .tree-toggle-btn {
-      width: 1.2rem;
+    .tree-item.active {
+      background-color: #e0f2ff;
+    }
+
+    .tree-toggle {
+      display: inline-block;
+      width: 1.4rem;
       text-align: center;
-      padding: 0;
-      border: none;
-      background: none;
+      font-weight: bold;
       cursor: pointer;
-      font-weight: 600;
+      user-select: none;
     }
 
-    .tree-toggle-btn:disabled {
-      cursor: default;
-      color: #ccc;
+    .tree-title {
+      flex: 1;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .badge-type {
       font-size: 0.7rem;
-      vertical-align: middle;
-      margin-left: 0.4rem;
     }
 
-    .card-section-title {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-      font-size: 0.9rem;
-    }
-
-    .readonly-input {
-      background-color: #f8f9fa !important;
+    .tree-children {
+      list-style: none;
+      padding-left: 1.25rem;
+      margin-top: 0.1rem;
     }
 
     .small-muted {
-      font-size: 0.8rem;
-      color: #6c757d;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .product-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .product-value {
+      font-size: 0.9rem;
+    }
+
+    .product-image {
+      max-height: 200px;
+      object-fit: contain;
     }
   </style>
 </head>
 <body>
-<header class="py-2 mb-3">
-  <div class="container-fluid d-flex justify-content-between align-items-center">
+
+<header>
+  <div class="d-flex justify-content-between align-items-center">
     <div>
       <h1>Каталог деталей крана КС-8165 <span class="text-secondary">— демо-версия</span></h1>
     </div>
@@ -144,86 +149,92 @@
         <div id="productHint" class="small-muted mb-2">
           Выберите изделие в дереве слева.
         </div>
+        <div id="productError" class="text-danger small mb-2" style="display:none;"></div>
 
-        <div class="mb-2">
-          <label class="form-label mb-1">Код:</label>
-          <input id="prodCode" class="form-control form-control-sm readonly-input" readonly />
-        </div>
-
-        <div class="mb-2">
-          <label class="form-label mb-1">Наименование:</label>
-          <input id="prodName" class="form-control form-control-sm readonly-input" readonly />
-        </div>
-
-        <div class="mb-2">
-          <label class="form-label mb-1">Тип:</label>
-          <input id="prodType" class="form-control form-control-sm readonly-input" readonly />
-        </div>
-
-        <div class="row g-2 mb-2">
-          <div class="col-6">
-            <label class="form-label mb-1">Масса, кг:</label>
-            <input id="prodMass" class="form-control form-control-sm readonly-input" readonly />
+        <div id="productCard" style="display:none;">
+          <div class="row g-2 mb-2">
+            <div class="col-md-4">
+              <div class="product-label">Код</div>
+              <div id="pCode" class="product-value"></div>
+            </div>
+            <div class="col-md-8">
+              <div class="product-label">Наименование</div>
+              <div id="pName" class="product-value"></div>
+            </div>
           </div>
-          <div class="col-6 text-end">
-            <button id="addToCartBtn" class="btn btn-outline-primary btn-sm mt-4" disabled>
+
+          <div class="row g-2 mb-2">
+            <div class="col-md-4">
+              <div class="product-label">Тип</div>
+              <div id="pType" class="product-value"></div>
+            </div>
+            <div class="col-md-4">
+              <div class="product-label">Масса, кг</div>
+              <div id="pMass" class="product-value"></div>
+            </div>
+            <div class="col-md-4">
+              <div class="product-label">Высота, мм</div>
+              <div id="pHeight" class="product-value"></div>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-2">
+            <div class="col-md-4">
+              <div class="product-label">Длина, мм</div>
+              <div id="pLength" class="product-value"></div>
+            </div>
+            <div class="col-md-4">
+              <div class="product-label">Ширина, мм</div>
+              <div id="pWidth" class="product-value"></div>
+            </div>
+            <div class="col-md-4">
+              <div class="product-label">Объём, л (расч.)</div>
+              <div id="pVolume" class="product-value"></div>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <div class="product-label mb-1">2D-изображение</div>
+              <div id="pImage2DContainer">
+                <div class="small-muted">Не загружено.</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="product-label mb-1">3D-модель</div>
+              <div id="pModel3DContainer">
+                <div class="small-muted">Не загружена.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mb-3">
+            <button id="btnAddCurrentToCart" class="btn btn-outline-primary btn-sm">
               Добавить в корзину
             </button>
           </div>
-        </div>
 
-        <div class="row g-2 mb-3">
-          <div class="col-4">
-            <label class="form-label mb-1">Длина, мм:</label>
-            <input id="prodLen" class="form-control form-control-sm readonly-input" readonly />
+          <h6 class="mt-3 mb-2">Состав сборки</h6>
+          <div class="small-muted mb-1">
+            Для деталей/стандарта состав пуст.
           </div>
-          <div class="col-4">
-            <label class="form-label mb-1">Ширина, мм:</label>
-            <input id="prodWidth" class="form-control form-control-sm readonly-input" readonly />
-          </div>
-          <div class="col-4">
-            <label class="form-label mb-1">Высота, мм:</label>
-            <input id="prodHeight" class="form-control form-control-sm readonly-input" readonly />
-          </div>
-        </div>
 
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <div class="card-section-title">2D-изображение</div>
-            <div class="border rounded p-2 text-center small-muted">
-              2D-изображение ещё не загружено<br />
-              (доступно только в локальной админ-версии)
-            </div>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead class="table-light">
+              <tr>
+                <th style="width: 12%">Код</th>
+                <th>Наименование</th>
+                <th style="width: 10%">Кол-во</th>
+                <th style="width: 12%">Тип</th>
+                <th style="width: 12%">В корзину</th>
+              </tr>
+              </thead>
+              <tbody id="bomBody">
+              <tr><td colspan="5" class="text-muted small">Выберите сборку в дереве слева.</td></tr>
+              </tbody>
+            </table>
           </div>
-          <div class="col-6">
-            <div class="card-section-title">3D-модель (.glb)</div>
-            <div class="border rounded p-2 text-center small-muted">
-              3D-модель ещё не загружена<br />
-              (доступно только в локальной админ-версии)
-            </div>
-          </div>
-        </div>
-
-        <h6 class="mt-3 mb-2">Состав сборки</h6>
-        <div class="small-muted mb-1">
-          Для деталей/стандарта состав пуст.
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0">
-            <thead class="table-light">
-            <tr>
-              <th style="width: 12%">Код</th>
-              <th>Наименование</th>
-              <th style="width: 10%">Кол-во</th>
-              <th style="width: 12%">Тип</th>
-              <th style="width: 12%">В корзину</th>
-            </tr>
-            </thead>
-            <tbody id="bomBody">
-            <tr><td colspan="5" class="text-muted small">Выберите сборку в дереве слева.</td></tr>
-            </tbody>
-          </table>
         </div>
 
       </div>
@@ -237,21 +248,52 @@
           Состав заказа по позициям.
         </div>
         <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0">
+          <table class="table table-sm align-middle mb-1">
             <thead class="table-light">
             <tr>
-              <th style="width: 10%">ID</th>
-              <th style="width: 18%">Код</th>
+              <th style="width: 25%">Код</th>
               <th>Наименование</th>
               <th style="width: 15%">Кол-во</th>
-              <th style="width: 12%">Удалить</th>
+              <th style="width: 10%">×</th>
             </tr>
             </thead>
             <tbody id="cartBody">
-            <tr><td colspan="5" class="text-muted small">Корзина пуста.</td></tr>
+            <tr><td colspan="4" class="text-muted small text-center">Корзина пуста.</td></tr>
             </tbody>
           </table>
         </div>
+
+        <div class="small mb-2">
+          Суммарный объём корзины:
+          <strong><span id="cartVolume">0.000</span> л</strong>
+        </div>
+
+        <button id="cartClear" class="btn btn-outline-danger btn-sm w-100 mb-3">
+          Очистить корзину
+        </button>
+
+        <div class="mb-2">
+          <label class="form-label form-label-sm mb-1">Заказчик</label>
+          <input id="orderCustomer" class="form-control form-control-sm" placeholder="ФИО или организация" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label form-label-sm mb-1">Контакты</label>
+          <input id="orderContacts" class="form-control form-control-sm" placeholder="телефон или email" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label form-label-sm mb-1">Номер заказа</label>
+          <input id="orderNumber" class="form-control form-control-sm" placeholder="можно оставить пустым" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label form-label-sm mb-1">Комментарий</label>
+          <textarea id="orderComment" rows="2" class="form-control form-control-sm"></textarea>
+        </div>
+
+        <button id="orderSubmit" class="btn btn-primary btn-sm w-100">
+          Отправить заказ
+        </button>
+
+        <div id="orderStatus" class="small mt-2"></div>
       </div>
     </div>
 
@@ -260,13 +302,11 @@
 
 <script>
   // === БАЗОВЫЕ НАСТРОЙКИ ===
-  const API_BASE = 'https://catalog-api-hdqu.onrender.com';
-
-  let productsCache = new Map();   // id -> product
+  const API_BASE = '/api';
+  const productsCache = new Map();   // id -> product
   let currentProductId = null;
 
-  // --- Вспомогательные функции работы с API ---
-
+  // --- API helpers ---
   async function apiGet(path) {
     const resp = await fetch(API_BASE + path);
     if (!resp.ok) {
@@ -276,55 +316,50 @@
     return resp.json();
   }
 
-  async function apiPost(path, body) {
-    const resp = await fetch(API_BASE + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {})
-    });
+  async function apiJson(path, options = {}) {
+    const opts = { ...options };
+    const headers = opts.headers ? { ...opts.headers } : {};
+    if (opts.body && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
+    opts.headers = headers;
+
+    const resp = await fetch(API_BASE + path, opts);
     if (!resp.ok) {
       const text = await resp.text().catch(() => '');
-      throw new Error('Ошибка POST ' + path + ': ' + resp.status + ' ' + text);
+      throw new Error('Ошибка ' + path + ': ' + resp.status + ' ' + text);
     }
-    return resp.json();
+    const ct = resp.headers.get('content-type') || '';
+    if (ct.includes('application/json')) {
+      return resp.json();
+    }
+    return null;
   }
 
-  async function apiDelete(path) {
-    const resp = await fetch(API_BASE + path, { method: 'DELETE' });
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => '');
-      throw new Error('Ошибка DELETE ' + path + ': ' + resp.status + ' ' + text);
-    }
-    return resp.json();
-  }
+  // === ДЕРЕВО ===
+  const treeEl = document.getElementById('productsTree');
+  const treeErrorEl = document.getElementById('treeError');
 
-  // --- Дерево изделий ---
-
-  async function loadProductsTree() {
-    const treeEl = document.getElementById('productsTree');
-    const errorEl = document.getElementById('treeError');
-
+  async function loadTree() {
     treeEl.innerHTML = '<li class="text-muted">Загрузка...</li>';
-    errorEl.style.display = 'none';
-
+    treeErrorEl.style.display = 'none';
     try {
-      const products = await apiGet('/api/products/root');
-      productsCache.clear();
-      products.forEach(p => productsCache.set(p.id, p));
-
-      const assemblies = products.filter(p => p.type === 'Assembly');
-      const others = products.filter(p => p.type !== 'Assembly');
-
+      const roots = await apiGet('/products/root');
       treeEl.innerHTML = '';
 
-      // сборки
+      if (!roots.length) {
+        treeEl.innerHTML = '<li class="text-muted">Дерево пусто.</li>';
+        return;
+      }
+
+      const assemblies = roots.filter(p => p.type === 'Assembly');
+      const others = roots.filter(p => p.type !== 'Assembly');
+
       assemblies.forEach(p => treeEl.appendChild(createTreeItem(p)));
 
-      // отдельный раздел для деталей/стандарта без сборки
       if (others.length) {
-        const hr = document.createElement('li');
-        hr.className = 'mt-2 mb-1 small text-muted';
-        hr.textContent = 'Отдельные детали и стандартизированные позиции:';
+        const hr = document.createElement('hr');
+        hr.className = 'my-1';
         treeEl.appendChild(hr);
         others.forEach(p => treeEl.appendChild(createTreeItem(p)));
       }
@@ -332,72 +367,82 @@
     } catch (e) {
       console.error(e);
       treeEl.innerHTML = '';
-      errorEl.textContent = 'Ошибка загрузки дерева: ' + e.message;
-      errorEl.style.display = 'block';
+      treeErrorEl.textContent = 'Ошибка загрузки дерева: ' + e.message;
+      treeErrorEl.style.display = 'block';
     }
   }
 
   function createTreeItem(product) {
     const li = document.createElement('li');
-    li.className = 'tree-item';
 
-    const hasChildren = product.type === 'Assembly';
+    const row = document.createElement('div');
+    row.className = 'tree-item';
 
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'tree-toggle-btn me-1';
-    toggleBtn.textContent = hasChildren ? '+' : '•';
-    toggleBtn.disabled = !hasChildren;
+    const toggleBtn = document.createElement('span');
+    toggleBtn.className = 'tree-toggle';
+    toggleBtn.textContent = product.type === 'Assembly' ? '+' : '';
+    row.appendChild(toggleBtn);
 
-    const labelBtn = document.createElement('span');
-    labelBtn.className = 'tree-label';
-    labelBtn.textContent = `${product.code} — ${product.name}`;
-    labelBtn.addEventListener('click', () => selectProduct(product.id));
-
-    li.appendChild(toggleBtn);
-    li.appendChild(labelBtn);
+    const title = document.createElement('span');
+    title.className = 'tree-title';
+    title.textContent = (product.code || '') + ' — ' + (product.name || '');
+    row.appendChild(title);
 
     const badge = document.createElement('span');
-    badge.className = 'badge badge-type';
-    if (product.type === 'Assembly') {
-      badge.classList.add('bg-primary');
-      badge.textContent = 'Сборка';
-    } else if (product.type === 'Part') {
-      badge.classList.add('bg-success');
-      badge.textContent = 'Деталь';
-    } else {
-      badge.classList.add('bg-warning', 'text-dark');
-      badge.textContent = 'Стандартное';
-    }
-    li.appendChild(badge);
+    badge.className = 'badge bg-secondary ms-1 badge-type';
+    badge.textContent =
+      product.type === 'Assembly' ? 'Сборка' :
+      product.type === 'Part' ? 'Деталь' : 'Стандарт';
+    row.appendChild(badge);
+
+    li.appendChild(row);
 
     const childrenUl = document.createElement('ul');
     childrenUl.className = 'tree-children';
     childrenUl.style.display = 'none';
     li.appendChild(childrenUl);
 
-    if (hasChildren) {
-      let expanded = false;
-      toggleBtn.addEventListener('click', async () => {
+    const hasChildren = product.type === 'Assembly';
+    let expanded = false;
+
+    row.addEventListener('click', async (ev) => {
+      ev.stopPropagation();
+      document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+      row.classList.add('active');
+      currentProductId = product.id;
+      await loadProduct(product.id);
+
+      if (hasChildren) {
         if (!expanded) {
           await loadTreeChildren(product.id, childrenUl);
           expanded = true;
-          childrenUl.style.display = 'block';
-          toggleBtn.textContent = '–';
+          childrenUl.style.display = '';
+          toggleBtn.textContent = '-';
         } else {
-          const visible = childrenUl.style.display !== 'none';
-          childrenUl.style.display = visible ? 'none' : 'block';
-          toggleBtn.textContent = visible ? '+' : '–';
+          if (childrenUl.style.display === 'none') {
+            childrenUl.style.display = '';
+            toggleBtn.textContent = '-';
+          } else {
+            childrenUl.style.display = 'none';
+            toggleBtn.textContent = '+';
+          }
         }
-      });
+      }
+    });
+
+    if (hasChildren) {
+      toggleBtn.style.visibility = 'visible';
+    } else {
+      toggleBtn.style.visibility = 'hidden';
     }
 
     return li;
   }
 
   async function loadTreeChildren(parentId, containerUl) {
-    containerUl.innerHTML = '<li class="text-muted">Загрузка...</li>';
+    containerUl.innerHTML = '<li class="text-muted small">Загрузка...</li>';
     try {
-      const children = await apiGet(`/api/products/${parentId}/children`);
+      const children = await apiGet(`/products/${parentId}/children`);
       containerUl.innerHTML = '';
       if (!children.length) {
         containerUl.innerHTML = '<li class="text-muted small">Состав отсутствует.</li>';
@@ -405,213 +450,272 @@
       }
       children.forEach(ch => {
         const prod = {
-          id: ch.product_id,
+          id: ch.product_id || ch.id,
           code: ch.code,
           name: ch.name,
-          type: ch.type,
-          mass_kg: ch.mass_kg,
-          length_mm: ch.length_mm,
-          width_mm: ch.width_mm,
-          height_mm: ch.height_mm
+          type: ch.type
         };
-        productsCache.set(prod.id, prod);
         containerUl.appendChild(createTreeItem(prod));
       });
     } catch (e) {
       console.error(e);
-      containerUl.innerHTML =
-        '<li class="text-danger small">Ошибка загрузки состава: ' +
-        e.message +
-        '</li>';
+      containerUl.innerHTML = '<li class="text-danger small">Ошибка загрузки состава.</li>';
     }
   }
 
-  // --- Карточка изделия и состав сборки ---
+  // === КАРТОЧКА ===
+  const productHintEl = document.getElementById('productHint');
+  const productErrorEl = document.getElementById('productError');
+  const productCardEl = document.getElementById('productCard');
 
-  async function selectProduct(productId) {
-    currentProductId = productId;
-    document.getElementById('addToCartBtn').disabled = false;
+  const pCode = document.getElementById('pCode');
+  const pName = document.getElementById('pName');
+  const pType = document.getElementById('pType');
+  const pMass = document.getElementById('pMass');
+  const pHeight = document.getElementById('pHeight');
+  const pLength = document.getElementById('pLength');
+  const pWidth = document.getElementById('pWidth');
+  const pVolume = document.getElementById('pVolume');
+  const pImage2DContainer = document.getElementById('pImage2DContainer');
+  const pModel3DContainer = document.getElementById('pModel3DContainer');
+  const btnAddCurrentToCart = document.getElementById('btnAddCurrentToCart');
+  const bomBody = document.getElementById('bomBody');
+
+  async function loadProduct(productId) {
+    productHintEl.style.display = 'none';
+    productErrorEl.style.display = 'none';
+    productCardEl.style.display = 'none';
 
     try {
-      const prod = await apiGet(`/api/products/${productId}`);
+      let prod = productsCache.get(productId);
+      if (!prod) {
+        prod = await apiGet(`/products/${productId}`);
+        productsCache.set(productId, prod);
+      }
 
-      document.getElementById('productHint').textContent =
-        `Код ${prod.code} — ${prod.name}`;
+      pCode.textContent = prod.code || '—';
+      pName.textContent = prod.name || '—';
+      pType.textContent =
+        prod.type === 'Assembly' ? 'Сборочная единица' :
+        prod.type === 'Part' ? 'Деталь' : 'Стандартное изделие';
+      pMass.textContent = prod.mass_kg != null ? prod.mass_kg : '—';
+      pHeight.textContent = prod.height_mm != null ? prod.height_mm : '—';
+      pLength.textContent = prod.length_mm != null ? prod.length_mm : '—';
+      pWidth.textContent = prod.width_mm != null ? prod.width_mm : '—';
 
-      document.getElementById('prodCode').value = prod.code || '';
-      document.getElementById('prodName').value = prod.name || '';
-      document.getElementById('prodType').value =
-        prod.type === 'Assembly'
-          ? 'Сборочная единица'
-          : prod.type === 'Part'
-          ? 'Деталь'
-          : 'Стандартное изделие';
+      const L = Number(prod.length_mm) || 0;
+      const W = Number(prod.width_mm) || 0;
+      const H = Number(prod.height_mm) || 0;
+      const volumeMm3 = L * W * H;
+      pVolume.textContent = volumeMm3 ? (volumeMm3 / 1e6).toFixed(3) : '—';
 
-      document.getElementById('prodMass').value =
-        prod.mass_kg != null ? String(prod.mass_kg) : '';
-      document.getElementById('prodLen').value =
-        prod.length_mm != null ? String(prod.length_mm) : '';
-      document.getElementById('prodWidth').value =
-        prod.width_mm != null ? String(prod.width_mm) : '';
-      document.getElementById('prodHeight').value =
-        prod.height_mm != null ? String(prod.height_mm) : '';
+      // 2D картинка
+      if (prod.image2d_url) {
+        pImage2DContainer.innerHTML =
+          `<img src="${prod.image2d_url}" class="img-fluid product-image" alt="2D" />`;
+      } else {
+        pImage2DContainer.innerHTML = '<div class="small-muted">Не загружено.</div>';
+      }
+
+      // 3D модель
+      if (prod.model3d_url) {
+        pModel3DContainer.innerHTML =
+          `<a href="${prod.model3d_url}" target="_blank">Открыть / скачать 3D-модель</a>`;
+      } else {
+        pModel3DContainer.innerHTML = '<div class="small-muted">Не загружена.</div>';
+      }
+
+      productCardEl.style.display = 'block';
 
       if (prod.type === 'Assembly') {
-        await loadBom(productId);
+        await loadBom(prod.id);
       } else {
-        const tbody = document.getElementById('bomBody');
-        tbody.innerHTML =
-          '<tr><td colspan="5" class="text-muted small">Состав есть только у сборок.</td></tr>';
+        bomBody.innerHTML =
+          '<tr><td colspan="5" class="text-muted small">Для деталей и стандартных изделий состав не отображается.</td></tr>';
       }
+
     } catch (e) {
       console.error(e);
-      alert('Ошибка загрузки изделия: ' + e.message);
+      productErrorEl.textContent = 'Ошибка загрузки карточки: ' + e.message;
+      productErrorEl.style.display = 'block';
     }
   }
 
   async function loadBom(parentId) {
-    const tbody = document.getElementById('bomBody');
-    tbody.innerHTML =
-      '<tr><td colspan="5" class="text-muted small">Загрузка состава...</td></tr>';
-
     try {
-      const children = await apiGet(`/api/products/${parentId}/children`);
-      if (!children.length) {
-        tbody.innerHTML =
+      const items = await apiGet(`/products/${parentId}/children`);
+      if (!items.length) {
+        bomBody.innerHTML =
           '<tr><td colspan="5" class="text-muted small">Состав пуст.</td></tr>';
         return;
       }
-
-      tbody.innerHTML = '';
-      for (const ch of children) {
+      bomBody.innerHTML = '';
+      items.forEach(item => {
         const tr = document.createElement('tr');
-
-        const tdCode = document.createElement('td');
-        tdCode.textContent = ch.code;
-        tr.appendChild(tdCode);
-
-        const tdName = document.createElement('td');
-        tdName.textContent = ch.name;
-        tr.appendChild(tdName);
-
-        const tdQty = document.createElement('td');
-        tdQty.textContent = ch.quantity != null ? String(ch.quantity) : '1';
-        tr.appendChild(tdQty);
-
-        const tdType = document.createElement('td');
-        tdType.textContent =
-          ch.type === 'Assembly'
-            ? 'Сборка'
-            : ch.type === 'Part'
-            ? 'Деталь'
-            : 'Стандарт';
-        tr.appendChild(tdType);
-
-        const tdCart = document.createElement('td');
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-outline-primary btn-sm';
-        btn.textContent = 'В корзину';
-        btn.addEventListener('click', () => addToCart(ch.product_id));
-        tdCart.appendChild(btn);
-        tr.appendChild(tdCart);
-
-        tbody.appendChild(tr);
-      }
+        tr.innerHTML = `
+          <td>${item.code}</td>
+          <td>${item.name}</td>
+          <td>${item.quantity || 1}</td>
+          <td>${
+            item.type === 'Assembly' ? 'Сборка' :
+            item.type === 'Part' ? 'Деталь' : 'Стандарт'
+          }</td>
+          <td><button class="btn btn-sm btn-outline-secondary">+</button></td>
+        `;
+        tr.querySelector('button').addEventListener('click', async () => {
+          const id = item.product_id || item.id;
+          try {
+            await addToCart(id, item.quantity || 1);
+          } catch (e) {
+            alert('Ошибка добавления в корзину: ' + e.message);
+          }
+        });
+        bomBody.appendChild(tr);
+      });
     } catch (e) {
       console.error(e);
-      tbody.innerHTML =
-        '<tr><td colspan="5" class="text-danger small">Ошибка загрузки состава: ' +
-        e.message +
-        '</td></tr>';
+      bomBody.innerHTML =
+        '<tr><td colspan="5" class="text-danger small">Ошибка загрузки состава.</td></tr>';
     }
   }
 
-  // --- Корзина ---
-
-  async function loadCart() {
-    const tbody = document.getElementById('cartBody');
-    tbody.innerHTML =
-      '<tr><td colspan="5" class="text-muted small">Загрузка...</td></tr>';
-    try {
-      const items = await apiGet('/api/cart');
-      if (!items.length) {
-        tbody.innerHTML =
-          '<tr><td colspan="5" class="text-muted small">Корзина пуста.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = '';
-      for (const it of items) {
-        const tr = document.createElement('tr');
-
-        const tdId = document.createElement('td');
-        tdId.textContent = it.id;
-        tr.appendChild(tdId);
-
-        const tdCode = document.createElement('td');
-        tdCode.textContent = it.code;
-        tr.appendChild(tdCode);
-
-        const tdName = document.createElement('td');
-        tdName.textContent = it.name;
-        tr.appendChild(tdName);
-
-        const tdQty = document.createElement('td');
-        tdQty.textContent =
-          it.quantity != null ? String(it.quantity) : '1';
-        tr.appendChild(tdQty);
-
-        const tdDel = document.createElement('td');
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-outline-danger btn-sm';
-        btn.textContent = '×';
-        btn.addEventListener('click', () => removeFromCart(it.id));
-        tdDel.appendChild(btn);
-        tr.appendChild(tdDel);
-
-        tbody.appendChild(tr);
-      }
-    } catch (e) {
-      console.error(e);
-      tbody.innerHTML =
-        '<tr><td colspan="5" class="text-danger small">Ошибка загрузки корзины: ' +
-        e.message +
-        '</td></tr>';
+  btnAddCurrentToCart.addEventListener('click', async () => {
+    if (!currentProductId) {
+      alert('Сначала выберите изделие.');
+      return;
     }
-  }
-
-  async function addToCart(productId) {
     try {
-      await apiPost('/api/cart/add', { productId, quantity: 1 });
-      await loadCart();
+      await addToCart(currentProductId, 1);
     } catch (e) {
-      console.error(e);
       alert('Ошибка добавления в корзину: ' + e.message);
     }
+  });
+
+  // === КОРЗИНА ===
+  const cartBody = document.getElementById('cartBody');
+  const cartClearBtn = document.getElementById('cartClear');
+  const cartVolumeEl = document.getElementById('cartVolume');
+
+  async function loadCart() {
+    try {
+      const items = await apiGet('/cart');
+      if (!items.length) {
+        cartBody.innerHTML =
+          '<tr><td colspan="4" class="text-muted small text-center">Корзина пуста.</td></tr>';
+        cartVolumeEl.textContent = '0.000';
+        return;
+      }
+
+      cartBody.innerHTML = '';
+      let totalVolumeMm3 = 0;
+
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.code}</td>
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td><button class="btn btn-sm btn-outline-danger">×</button></td>
+        `;
+        tr.querySelector('button').addEventListener('click', async () => {
+          try {
+            await removeFromCart(item.id);
+          } catch (e) {
+            alert('Ошибка удаления из корзины: ' + e.message);
+          }
+        });
+        cartBody.appendChild(tr);
+
+        const L = Number(item.length_mm) || 0;
+        const W = Number(item.width_mm) || 0;
+        const H = Number(item.height_mm) || 0;
+        const q = Number(item.quantity) || 1;
+        totalVolumeMm3 += L * W * H * q;
+      });
+
+      const totalL = totalVolumeMm3 / 1e6;
+      cartVolumeEl.textContent = totalL.toFixed(3);
+    } catch (e) {
+      console.error(e);
+      cartBody.innerHTML =
+        '<tr><td colspan="4" class="text-danger small text-center">Ошибка загрузки корзины.</td></tr>';
+      cartVolumeEl.textContent = '0.000';
+    }
+  }
+
+  async function addToCart(productId, quantity = 1) {
+    await apiJson('/cart/add', {
+      method: 'POST',
+      body: JSON.stringify({ productId, quantity })
+    });
+    await loadCart();
   }
 
   async function removeFromCart(cartItemId) {
-    if (!confirm('Удалить позицию из корзины?')) return;
-    try {
-      await apiDelete(`/api/cart/${cartItemId}`);
-      await loadCart();
-    } catch (e) {
-      console.error(e);
-      alert('Ошибка удаления из корзины: ' + e.message);
-    }
+    await apiJson(`/cart/${cartItemId}`, { method: 'DELETE' });
+    await loadCart();
   }
 
-  // --- Инициализация ---
-
-  document.addEventListener('DOMContentLoaded', () => {
-    loadProductsTree();
-    loadCart();
-
-    document.getElementById('addToCartBtn').addEventListener('click', () => {
-      if (currentProductId) {
-        addToCart(currentProductId);
-      }
-    });
+  cartClearBtn.addEventListener('click', async () => {
+    if (!confirm('Очистить корзину?')) return;
+    try {
+      await apiJson('/cart/clear', { method: 'DELETE' });
+      await loadCart();
+    } catch (e) {
+      alert('Ошибка очистки корзины: ' + e.message);
+    }
   });
+
+  // === ОФОРМЛЕНИЕ ЗАКАЗА ===
+  const orderCustomer = document.getElementById('orderCustomer');
+  const orderContacts = document.getElementById('orderContacts');
+  const orderNumber = document.getElementById('orderNumber');
+  const orderComment = document.getElementById('orderComment');
+  const orderSubmit = document.getElementById('orderSubmit');
+  const orderStatus = document.getElementById('orderStatus');
+
+  orderSubmit.addEventListener('click', async () => {
+    const name = orderCustomer.value.trim();
+    const contact = orderContacts.value.trim();
+    if (!name || !contact) {
+      alert('Укажите заказчика и контактные данные.');
+      return;
+    }
+
+    const body = {
+      customer_name: name,
+      customer_email: contact.includes('@') ? contact : null,
+      customer_phone: !contact.includes('@') ? contact : null,
+      order_number: orderNumber.value.trim() || null,
+      comment: orderComment.value.trim() || null
+    };
+
+    try {
+      const resp = await apiJson('/orders', {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+
+      orderStatus.textContent =
+        `Заказ отправлен. ID: ${resp.order.id}, номер: ${resp.order.order_number || 'не задан'}`;
+      orderStatus.className = 'small text-success mt-2';
+
+      orderCustomer.value = '';
+      orderContacts.value = '';
+      orderNumber.value = '';
+      orderComment.value = '';
+      await loadCart();
+    } catch (e) {
+      orderStatus.textContent = 'Ошибка оформления заказа: ' + e.message;
+      orderStatus.className = 'small text-danger mt-2';
+    }
+  });
+
+  // === СТАРТ ===
+  (async function init() {
+    await loadTree();
+    await loadCart();
+  })();
 </script>
 
 </body>
